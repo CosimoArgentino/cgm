@@ -10,7 +10,11 @@ public class Visit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    private Long visitId;
+
+    @ManyToOne
+    @JoinColumn(name = "patientId")
+    private Patient patient;
     private Date startDate;
     private Date endDate;
 
@@ -20,12 +24,12 @@ public class Visit {
 
     private String familyHistory;
 
-    public Long getId() {
-        return id;
+    public Long getVisitId() {
+        return visitId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setVisitId(Long visitId) {
+        this.visitId = visitId;
     }
 
     public Date getStartDate() {
@@ -66,6 +70,14 @@ public class Visit {
 
     public void setFamilyHistory(String familyHistory) {
         this.familyHistory = familyHistory;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
     }
 }
 

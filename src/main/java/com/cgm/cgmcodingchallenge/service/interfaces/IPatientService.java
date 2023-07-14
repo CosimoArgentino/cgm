@@ -10,4 +10,6 @@ public interface IPatientService {
     Patient fetch(String socialSecurityNumber);
 
     Patient create(Patient patient);
+
+    Patient update(Patient patient);
 }

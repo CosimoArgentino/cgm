@@ -1,17 +1,20 @@
 package com.cgm.cgmcodingchallenge.entities;
 
 import com.cgm.cgmcodingchallenge.dto.PatientDTO;
-import com.cgm.cgmcodingchallenge.repository.PatientDAO;
 import jakarta.persistence.*;
 
 import java.sql.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "patient", uniqueConstraints = {@UniqueConstraint(columnNames = {"socialSecurityNumber"})})
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+    private Long patientId;
+
+    @OneToMany(mappedBy = "patient")
+    private Set<Visit> visits;
     private String name;
     private String surname;
     private Date birth;
@@ -28,12 +31,12 @@ public class Patient {
 
     }
 
-    public Long getId() {
-        return id;
+    public Long getPatientId() {
+        return patientId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
     }
 
     public String getName() {
@@ -66,6 +69,14 @@ public class Patient {
 
     public void setSocialSecurityNumber(String socialSecurityNumber) {
         this.socialSecurityNumber = socialSecurityNumber;
+    }
+
+    public Set<Visit> getVisits() {
+        return visits;
+    }
+
+    public void setVisits(Set<Visit> visits) {
+        this.visits = visits;
     }
 
     public PatientDTO toDto(){

@@ -3,6 +3,8 @@ package com.cgm.cgmcodingchallenge.controller;
 
 import com.cgm.cgmcodingchallenge.dto.PatientDTO;
 import com.cgm.cgmcodingchallenge.entities.Patient;
+import com.cgm.cgmcodingchallenge.exceptions.InvalidSecurityNumberException;
+import com.cgm.cgmcodingchallenge.exceptions.PatientNotFoundException;
 import com.cgm.cgmcodingchallenge.service.interfaces.IPatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +17,15 @@ import java.util.List;
 public class PatientController {
 
     private final IPatientService patientService;
-
     public PatientController(IPatientService patientService){
         this.patientService = patientService;
     }
     @GetMapping("/patients")
     public ResponseEntity<List<PatientDTO>> fetchAll(){
         List<Patient> patients = patientService.fetchAll();
-        return new ResponseEntity<>(patients.stream().map(p->p.toDto()).toList(), HttpStatus.OK);
+        return new ResponseEntity<>(patients
+                .stream()
+                .map(p->p.toDto()).toList(), HttpStatus.OK);
     }
 
     @GetMapping("/patients/{socialSecurityNumber}")
@@ -36,12 +39,21 @@ public class PatientController {
 
     @PostMapping("/patients")
     public ResponseEntity<PatientDTO> create(@RequestBody PatientDTO patientDTO){
-        Patient patient = patientService.create(patientDTO.toEntity(patientDTO));
-        return new ResponseEntity<>(patient.toDto(), HttpStatus.CREATED);
+        try {
+            Patient patient = patientService.create(patientDTO.toEntity(patientDTO));
+            return new ResponseEntity<>(patient.toDto(), HttpStatus.CREATED);
+        }catch(InvalidSecurityNumberException exc){
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping("/patients/{socialSecurityNumber}")
     public ResponseEntity<PatientDTO> update(@RequestBody PatientDTO patientDTO){
-        return null;
+        try {
+            Patient patient = patientService.update(patientDTO.toEntity(patientDTO));
+            return new ResponseEntity<>(patient.toDto(), HttpStatus.OK);
+        }catch(PatientNotFoundException exc){
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 }
