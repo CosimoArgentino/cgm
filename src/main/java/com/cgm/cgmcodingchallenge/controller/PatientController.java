@@ -2,12 +2,11 @@ package com.cgm.cgmcodingchallenge.controller;
 
 
 import com.cgm.cgmcodingchallenge.dto.PatientDTO;
+import com.cgm.cgmcodingchallenge.entities.Patient;
 import com.cgm.cgmcodingchallenge.service.interfaces.IPatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,7 +21,27 @@ public class PatientController {
     }
     @GetMapping("/patients")
     public ResponseEntity<List<PatientDTO>> fetchAll(){
-        List<PatientDTO> patients = patientService.fetchAll();
-        return new ResponseEntity<>(patients, HttpStatus.OK);
+        List<Patient> patients = patientService.fetchAll();
+        return new ResponseEntity<>(patients.stream().map(p->p.toDto()).toList(), HttpStatus.OK);
+    }
+
+    @GetMapping("/patients/{socialSecurityNumber}")
+    public ResponseEntity<PatientDTO> fetch(@PathVariable String socialSecurityNumber) {
+        Patient patient = patientService.fetch(socialSecurityNumber);
+        if(patient == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(patient.toDto(), HttpStatus.OK);
+    }
+
+    @PostMapping("/patients")
+    public ResponseEntity<PatientDTO> create(@RequestBody PatientDTO patientDTO){
+        Patient patient = patientService.create(patientDTO.toEntity(patientDTO));
+        return new ResponseEntity<>(patient.toDto(), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/patients/{socialSecurityNumber}")
+    public ResponseEntity<PatientDTO> update(@RequestBody PatientDTO patientDTO){
+        return null;
     }
 }

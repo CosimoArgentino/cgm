@@ -1,9 +1,13 @@
 package com.cgm.cgmcodingchallenge.service.interfaces;
 
-import com.cgm.cgmcodingchallenge.dto.PatientDTO;
+import com.cgm.cgmcodingchallenge.entities.Patient;
 
 import java.util.List;
 
 public interface IPatientService {
-    List<PatientDTO> fetchAll();
+    List<Patient> fetchAll();
+
+    Patient fetch(String socialSecurityNumber);
+
+    Patient create(Patient patient);
 }

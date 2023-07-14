@@ -1,5 +1,7 @@
 package com.cgm.cgmcodingchallenge.entities;
 
+import com.cgm.cgmcodingchallenge.dto.PatientDTO;
+import com.cgm.cgmcodingchallenge.repository.PatientDAO;
 import jakarta.persistence.*;
 
 import java.sql.Date;
@@ -14,6 +16,17 @@ public class Patient {
     private String surname;
     private Date birth;
     private String socialSecurityNumber;
+
+    public Patient(String name, String surname, Date birth, String socialSecurityNumber) {
+        this.name = name;
+        this.surname = surname;
+        this.birth = birth;
+        this.socialSecurityNumber = socialSecurityNumber;
+    }
+
+    public Patient(){
+
+    }
 
     public Long getId() {
         return id;
@@ -53,5 +66,9 @@ public class Patient {
 
     public void setSocialSecurityNumber(String socialSecurityNumber) {
         this.socialSecurityNumber = socialSecurityNumber;
+    }
+
+    public PatientDTO toDto(){
+        return new PatientDTO(this.name, this.surname, this.birth, this.socialSecurityNumber);
     }
 }
