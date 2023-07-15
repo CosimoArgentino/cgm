@@ -6,6 +6,8 @@ import com.cgm.cgmcodingchallenge.exceptions.PatientNotFoundException;
 import com.cgm.cgmcodingchallenge.exceptions.VisitNotFoundException;
 import com.cgm.cgmcodingchallenge.repository.VisitDAO;
 import com.cgm.cgmcodingchallenge.service.interfaces.IVisitService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -15,6 +17,8 @@ import java.util.List;
 @Service
 public class VisitService implements IVisitService {
 
+    private final static Logger logger = LoggerFactory.getLogger(VisitService.class);
+
     private final VisitDAO visitDAO;
 
     public VisitService(VisitDAO visitDAO){
@@ -23,14 +27,18 @@ public class VisitService implements IVisitService {
     @Override
     public Visit create(Visit visit) {
         if (isOverlap(visit.getStartDate(), visit.getEndDate(), null)){
-            throw new OverlapVisitException(String.format("can't save visit, time overlap"));
+            String message = String.format("time overlap %s and %s, patient %s", visit.getStartDate().toString(), visit.getEndDate().toString(), visit.getPatient().getSocialSecurityNumber());
+            logger.error(message);
+            throw new OverlapVisitException(message);
         }
         try {
             Visit visitReturn = visitDAO.save(visit);
             visitReturn.getPatient().setSocialSecurityNumber(visit.getPatient().getSocialSecurityNumber());
             return visitReturn;
         }catch(RuntimeException exc){
-            throw new PatientNotFoundException(String.format("no patient found for social security number %s", visit.getPatient().getSocialSecurityNumber()));
+            String message = String.format("patient not found for social security number %s", visit.getPatient().getSocialSecurityNumber());
+            logger.error(message);
+            throw new PatientNotFoundException(message);
         }
     }
 
@@ -46,11 +54,14 @@ public class VisitService implements IVisitService {
                 .orElseThrow(()->new VisitNotFoundException(String.format("no visit found for id %d", visit.getVisitId())));
 
         if(isOverlap(visit.getStartDate(), visit.getEndDate(), Arrays.asList(visit.getVisitId()))){
-            throw new OverlapVisitException(String.format("invalid time"));
+            String message = String.format("time overlap %s and %s, patient %s", visit.getStartDate().toString(), visit.getEndDate().toString(), visit.getPatient().getSocialSecurityNumber());
+            logger.error(message);
+            throw new OverlapVisitException(message);
         }
 
         return visitDAO.save(visit);
     }
+
 
     private boolean isOverlap(Timestamp startDate, Timestamp endDate, List<Long> visitIds){
         if(visitIds != null && visitIds.size() != 0){

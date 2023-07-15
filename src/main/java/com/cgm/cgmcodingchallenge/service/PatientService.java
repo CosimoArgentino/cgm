@@ -5,6 +5,10 @@ import com.cgm.cgmcodingchallenge.exceptions.InvalidSecurityNumberException;
 import com.cgm.cgmcodingchallenge.exceptions.PatientNotFoundException;
 import com.cgm.cgmcodingchallenge.repository.PatientDAO;
 import com.cgm.cgmcodingchallenge.service.interfaces.IPatientService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +17,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class PatientService implements IPatientService {
+
+    private final static Logger logger = LoggerFactory.getLogger(PatientService.class);
 
     private final PatientDAO patientDAO;
 
@@ -23,8 +29,8 @@ public class PatientService implements IPatientService {
     }
 
     @Override
-    public List<Patient> fetchAll() {
-       return patientDAO.findAll();
+    public Page<Patient> fetchAll(Pageable pageable) {
+       return patientDAO.findAll(pageable);
     }
 
     @Override
@@ -36,7 +42,9 @@ public class PatientService implements IPatientService {
     public Patient create(Patient patient) {
         Matcher matcher = pattern.matcher(patient.getSocialSecurityNumber());
         if(!matcher.matches()) {
-            throw new InvalidSecurityNumberException(String.format("invalid security number %s", patient.getSocialSecurityNumber()));
+            String message = String.format("invalid social security number %s", patient.getSocialSecurityNumber());
+            logger.error(message);
+            throw new InvalidSecurityNumberException(message);
         }
         return patientDAO.save(patient);
     }
@@ -46,7 +54,9 @@ public class PatientService implements IPatientService {
         String socialSecurityNumber = patient.getSocialSecurityNumber();
         Patient patientToUpdate = patientDAO.findBySocialSecurityNumber(socialSecurityNumber);
         if(patientToUpdate == null){
-            throw new PatientNotFoundException(String.format("patient %s not found", socialSecurityNumber));
+            String message = String.format("patient % not found", socialSecurityNumber);
+            logger.error(message);
+            throw new PatientNotFoundException(message);
         }
         return patientDAO.save(patient);
     }

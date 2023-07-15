@@ -6,6 +6,9 @@ import com.cgm.cgmcodingchallenge.entities.Patient;
 import com.cgm.cgmcodingchallenge.exceptions.InvalidSecurityNumberException;
 import com.cgm.cgmcodingchallenge.exceptions.PatientNotFoundException;
 import com.cgm.cgmcodingchallenge.service.interfaces.IPatientService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +24,10 @@ public class PatientController {
         this.patientService = patientService;
     }
     @GetMapping("/patients")
-    public ResponseEntity<List<PatientDTO>> fetchAll(){
-        List<Patient> patients = patientService.fetchAll();
+    public ResponseEntity<List<PatientDTO>> fetchAll(@RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "4") int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Patient> patients = patientService.fetchAll(pageable);
         return new ResponseEntity<>(patients
                 .stream()
                 .map(p->p.toDto()).toList(), HttpStatus.OK);
