@@ -16,3 +16,6 @@ Just a few step:
   ```
 - go to http://localhost:8080/swagger-ui/index.html to test the api using swagger
 - have fun!
+
+P.S. unluckily I had to do some extra job during the weekend due to an emergency at work, I rushed to do the best
+solution with tests ecc... but it's not completed.
