@@ -2,7 +2,6 @@ package com.cgm.cgmcodingchallenge;
 
 import com.cgm.cgmcodingchallenge.dto.PatientDTO;
 import com.cgm.cgmcodingchallenge.repository.PatientDAO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -16,10 +15,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.Date;
-import java.time.LocalDate;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -38,15 +35,11 @@ public class PatientEETest {
 
     @Test
     public void testSave_newPatient_status201() throws Exception {
-        PatientDTO patientDTO = new PatientDTO();
-        patientDTO.setName("Name");
-        patientDTO.setSurname("Surname");
-        patientDTO.setBirth(Date.valueOf("1991-12-21"));
-        patientDTO.setSocialSecurityNumber("SRNNMA91T21L049Z");
+        PatientDTO patientDTO = TestUtils.createPatientDto();
 
-        mvc.perform(post("/cgm/patients", patientDTO)
+        mvc.perform(post("/cgm/patients")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(patientDTO)))
+                        .content(TestUtils.toJson(patientDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", Matchers.is(patientDTO.getName())))
@@ -58,23 +51,19 @@ public class PatientEETest {
     }
 
     @Test
-    public void testSave_updatePatient_status201() throws Exception {
-        PatientDTO patientDTO = new PatientDTO();
-        patientDTO.setName("Name");
-        patientDTO.setSurname("Surname");
-        patientDTO.setBirth(Date.valueOf("1991-12-21"));
-        patientDTO.setSocialSecurityNumber("SRNNMA91T21L049Z");
+    public void testSave_updatePatient_status200() throws Exception {
+        PatientDTO patientDTO = TestUtils.createPatientDto();
 
         mvc.perform(post("/cgm/patients", patientDTO)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(patientDTO)))
+                        .content(TestUtils.toJson(patientDTO)))
                 .andExpect(status().isCreated());
 
         patientDTO.setSurname("Surname1");
 
         mvc.perform(put(String.format("/cgm/patients/%s", patientDTO.getSocialSecurityNumber()), patientDTO)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(toJson(patientDTO)))
+                        .content(TestUtils.toJson(patientDTO)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.surname", Matchers.is(patientDTO.getSurname())));
@@ -83,12 +72,62 @@ public class PatientEETest {
         Assert.assertEquals(1, deleted);
     }
 
-    private static String toJson(Object object){
-        try {
-            return new ObjectMapper().writeValueAsString(object);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @Test
+    public void testSave_fetchPatient_status200() throws Exception {
+        PatientDTO patientDTO = TestUtils.createPatientDto();
+
+        mvc.perform(post("/cgm/patients", patientDTO)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.toJson(patientDTO)))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get(String.format("/cgm/patients/%s", patientDTO.getSocialSecurityNumber()), patientDTO)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name", Matchers.is(patientDTO.getName())))
+                .andExpect(jsonPath("$.socialSecurityNumber", Matchers.is(patientDTO.getSocialSecurityNumber())))
+                .andExpect(jsonPath("$.surname", Matchers.is(patientDTO.getSurname())));
+
+        long deleted = patientDAO.deleteBySocialSecurityNumber(patientDTO.getSocialSecurityNumber());
+        Assert.assertEquals(1, deleted);
+    }
+
+    @Test
+    public void testSave_fetchAll_status200() throws Exception {
+        String socialSecurityNumber1 = "SRNNMA91T21L049Z";
+        String socialSecurityNumber2 = "SRPNMP91T21L049Z";
+        PatientDTO patientDTO = new PatientDTO();
+        patientDTO.setName("Name");
+        patientDTO.setSurname("Surname");
+        patientDTO.setBirth(Date.valueOf("1991-12-21"));
+        patientDTO.setSocialSecurityNumber(socialSecurityNumber1);
+
+        mvc.perform(post("/cgm/patients", patientDTO)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.toJson(patientDTO)))
+                .andExpect(status().isCreated());
+
+        patientDTO.setName("Name2");
+        patientDTO.setSurname("Surname2");
+        patientDTO.setBirth(Date.valueOf("1991-12-21"));
+        patientDTO.setSocialSecurityNumber(socialSecurityNumber2);
+
+        mvc.perform(post("/cgm/patients", patientDTO)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.toJson(patientDTO)))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/cgm/patients")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", Matchers.hasSize(2)));
+
+        long deleted = patientDAO.deleteBySocialSecurityNumber(socialSecurityNumber1);
+        Assert.assertEquals(1, deleted);
+        deleted = patientDAO.deleteBySocialSecurityNumber(socialSecurityNumber2);
+        Assert.assertEquals(1, deleted);
     }
 
 

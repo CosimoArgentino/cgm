@@ -3,7 +3,6 @@ package com.cgm.cgmcodingchallenge.entities;
 import com.cgm.cgmcodingchallenge.dto.VisitDTO;
 import jakarta.persistence.*;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
@@ -41,6 +40,15 @@ public class Visit {
         this.visitType = visitType;
         this.reasonType = reasonType;
         this.familyHistory = familyHistory;
+    }
+
+    public Visit(VisitBuilder visitBuilder) {
+        this.patient = visitBuilder.patient;
+        this.visitType = visitBuilder.visitType;
+        this.reasonType = visitBuilder.reasonType;
+        this.startDate = visitBuilder.startDate;
+        this.endDate = visitBuilder.endDate;
+        this.familyHistory = visitBuilder.familyHistory;
     }
 
     public Long getVisitId() {
@@ -101,6 +109,60 @@ public class Visit {
 
     public VisitDTO toDto(){
         return new VisitDTO(this.patient.getSocialSecurityNumber(), this.visitType, this.reasonType, this.startDate, this.endDate, this.familyHistory);
+    }
+
+    public static class VisitBuilder{
+
+        private Patient patient;
+        private Timestamp startDate;
+        private Timestamp endDate;
+
+        private VisitType visitType;
+
+        private ReasonType reasonType;
+
+        private String familyHistory;
+
+        public VisitBuilder(){
+
+        }
+
+        public VisitBuilder setSocialSecurityNumber(String socialSecurityNumber){
+            if(patient == null){
+                patient = new Patient();
+            }
+            this.patient.setSocialSecurityNumber(socialSecurityNumber);
+            return this;
+        }
+
+        public VisitBuilder setStartDate(Timestamp startDate){
+            this.startDate = startDate;
+            return this;
+        }
+
+        public VisitBuilder setEndDate(Timestamp endDate){
+            this.endDate = endDate;
+            return this;
+        }
+
+        public VisitBuilder setReasonType(ReasonType reasonType){
+            this.reasonType = reasonType;
+            return this;
+        }
+
+        public VisitBuilder setVisitType(VisitType visitType){
+            this.visitType = visitType;
+            return this;
+        }
+
+        public VisitBuilder setFamilyHistory(String familyHistory){
+            this.familyHistory = familyHistory;
+            return this;
+        }
+
+        public Visit build(){
+            return new Visit(this);
+        }
     }
 }
 

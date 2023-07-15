@@ -25,7 +25,7 @@ public class VisitController {
         try{
             Visit visit = visitService.create(visitDTO.toEntity());
             return new ResponseEntity<>(visit.toDto(), HttpStatus.CREATED);
-        }catch(OverlapVisitException exc){
+        }catch(OverlapVisitException | PatientNotFoundException exc){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

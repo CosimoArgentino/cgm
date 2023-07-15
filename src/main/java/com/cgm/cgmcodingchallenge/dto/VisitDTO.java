@@ -19,6 +19,10 @@ public class VisitDTO {
 
     private String familyHistory;
 
+    public VisitDTO(){
+
+    }
+
     public VisitDTO(String socialSecurityNumber, VisitType visitType,
                     ReasonType reasonType, Timestamp startDate, Timestamp endDate, String familyHistory) {
         this.socialSecurityNumber = socialSecurityNumber;
