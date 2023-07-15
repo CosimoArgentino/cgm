@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface PatientDAO extends JpaRepository<Patient, Long> {
     Patient findBySocialSecurityNumber(String socialSecurityNumber);
 
+    Long deleteBySocialSecurityNumber(String socialSecurityNumber);
+
 }

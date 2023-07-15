@@ -3,7 +3,6 @@ package com.cgm.cgmcodingchallenge.service;
 import com.cgm.cgmcodingchallenge.entities.Visit;
 import com.cgm.cgmcodingchallenge.exceptions.OverlapVisitException;
 import com.cgm.cgmcodingchallenge.exceptions.VisitNotFoundException;
-import com.cgm.cgmcodingchallenge.repository.PatientDAO;
 import com.cgm.cgmcodingchallenge.repository.VisitDAO;
 import com.cgm.cgmcodingchallenge.service.interfaces.IVisitService;
 import org.springframework.stereotype.Service;
@@ -30,13 +29,6 @@ public class VisitService implements IVisitService {
         return visitReturn;
     }
 
-    private boolean isOverlap(Timestamp startDate, Timestamp endDate, List<Long> visitIds){
-        if(visitIds != null && visitIds.size() != 0){
-            return visitDAO.findOverlappingDateExcludeSomeVisits(startDate, endDate, visitIds) != 0;
-        }
-        return visitDAO.findOverlappingDate(startDate, endDate) != 0;
-    }
-
     @Override
     public Visit fetch(Long id) {
         return visitDAO.findById(id)
@@ -53,5 +45,12 @@ public class VisitService implements IVisitService {
                 .orElseThrow(()->new VisitNotFoundException(String.format("no visit found for id %d", visit.getVisitId())));
 
         return visitDAO.save(visit);
+    }
+
+    private boolean isOverlap(Timestamp startDate, Timestamp endDate, List<Long> visitIds){
+        if(visitIds != null && visitIds.size() != 0){
+            return visitDAO.findOverlappingDateExcludeSomeVisits(startDate, endDate, visitIds) != 0;
+        }
+        return visitDAO.findOverlappingDate(startDate, endDate) != 0;
     }
 }
