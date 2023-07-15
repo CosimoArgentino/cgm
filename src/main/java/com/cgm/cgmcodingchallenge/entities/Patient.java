@@ -2,23 +2,23 @@ package com.cgm.cgmcodingchallenge.entities;
 
 import com.cgm.cgmcodingchallenge.dto.PatientDTO;
 import jakarta.persistence.*;
+import org.hibernate.annotations.NaturalId;
 
 import java.sql.Date;
 import java.util.Set;
 
 @Entity
-@Table(name = "patient", uniqueConstraints = {@UniqueConstraint(columnNames = {"socialSecurityNumber"})})
+@Table(name = "patient")
 public class Patient {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long patientId;
+    private String socialSecurityNumber;
 
     @OneToMany(mappedBy = "patient")
     private Set<Visit> visits;
     private String name;
     private String surname;
     private Date birth;
-    private String socialSecurityNumber;
+
 
     public Patient(String name, String surname, Date birth, String socialSecurityNumber) {
         this.name = name;
@@ -29,14 +29,6 @@ public class Patient {
 
     public Patient(){
 
-    }
-
-    public Long getPatientId() {
-        return patientId;
-    }
-
-    public void setPatientId(Long patientId) {
-        this.patientId = patientId;
     }
 
     public String getName() {
@@ -67,16 +59,16 @@ public class Patient {
         return socialSecurityNumber;
     }
 
-    public void setSocialSecurityNumber(String socialSecurityNumber) {
-        this.socialSecurityNumber = socialSecurityNumber;
-    }
-
     public Set<Visit> getVisits() {
         return visits;
     }
 
     public void setVisits(Set<Visit> visits) {
         this.visits = visits;
+    }
+
+    public void setSocialSecurityNumber(String socialSecurityNumber) {
+        this.socialSecurityNumber = socialSecurityNumber;
     }
 
     public PatientDTO toDto(){

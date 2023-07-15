@@ -1,8 +1,10 @@
 package com.cgm.cgmcodingchallenge.entities;
 
+import com.cgm.cgmcodingchallenge.dto.VisitDTO;
 import jakarta.persistence.*;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "visit")
@@ -13,16 +15,33 @@ public class Visit {
     private Long visitId;
 
     @ManyToOne
-    @JoinColumn(name = "patientId")
+    @JoinColumn(name = "social_security_number")
     private Patient patient;
-    private Date startDate;
-    private Date endDate;
+    private Timestamp startDate;
+    private Timestamp endDate;
 
     private VisitType visitType;
 
     private ReasonType reasonType;
 
     private String familyHistory;
+
+    public Visit(){
+
+    }
+
+    public Visit(String socialSecurityNumber, Timestamp startDate, Timestamp endDate,
+                 VisitType visitType, ReasonType reasonType, String familyHistory) {
+        if(this.patient == null){
+            this.patient = new Patient();
+        }
+        this.patient.setSocialSecurityNumber(socialSecurityNumber);
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.visitType = visitType;
+        this.reasonType = reasonType;
+        this.familyHistory = familyHistory;
+    }
 
     public Long getVisitId() {
         return visitId;
@@ -32,19 +51,15 @@ public class Visit {
         this.visitId = visitId;
     }
 
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
+    public void setStartDate(Timestamp startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public Timestamp getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
     }
 
@@ -72,6 +87,10 @@ public class Visit {
         this.familyHistory = familyHistory;
     }
 
+    public Timestamp getStartDate() {
+        return startDate;
+    }
+
     public Patient getPatient() {
         return patient;
     }
@@ -79,12 +98,9 @@ public class Visit {
     public void setPatient(Patient patient) {
         this.patient = patient;
     }
+
+    public VisitDTO toDto(){
+        return new VisitDTO(this.patient.getSocialSecurityNumber(), this.visitType, this.reasonType, this.startDate, this.endDate, this.familyHistory);
+    }
 }
 
-enum VisitType{
-    HOME, OFFICE
-}
-
-enum ReasonType{
-    FIRST, RECURRING, URGENT
-}

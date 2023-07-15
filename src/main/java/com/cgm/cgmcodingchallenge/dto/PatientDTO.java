@@ -1,12 +1,12 @@
 package com.cgm.cgmcodingchallenge.dto;
 
 import com.cgm.cgmcodingchallenge.entities.Patient;
+import com.cgm.cgmcodingchallenge.entities.ReasonType;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Date;
 
 public class PatientDTO {
-
     private String name;
     private String surname;
     private Date birth;

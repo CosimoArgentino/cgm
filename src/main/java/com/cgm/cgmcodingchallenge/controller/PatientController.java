@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
@@ -43,17 +44,18 @@ public class PatientController {
             Patient patient = patientService.create(patientDTO.toEntity(patientDTO));
             return new ResponseEntity<>(patient.toDto(), HttpStatus.CREATED);
         }catch(InvalidSecurityNumberException exc){
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/patients/{socialSecurityNumber}")
-    public ResponseEntity<PatientDTO> update(@RequestBody PatientDTO patientDTO){
+    public ResponseEntity<PatientDTO> update(@PathVariable String socialSecurityNumber, @RequestBody PatientDTO patientDTO){
         try {
+            patientDTO.setSocialSecurityNumber(socialSecurityNumber);
             Patient patient = patientService.update(patientDTO.toEntity(patientDTO));
             return new ResponseEntity<>(patient.toDto(), HttpStatus.OK);
         }catch(PatientNotFoundException exc){
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 }

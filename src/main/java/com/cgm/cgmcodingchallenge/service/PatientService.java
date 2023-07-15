@@ -42,15 +42,12 @@ public class PatientService implements IPatientService {
     }
 
     @Override
-    public Patient update(Patient patientToUpdate) {
-        Patient patient = patientDAO.findBySocialSecurityNumber(patientToUpdate.getSocialSecurityNumber());
-        if(patient == null){
-            throw new PatientNotFoundException(String.format("patient %s not found"));
+    public Patient update(Patient patient) {
+        String socialSecurityNumber = patient.getSocialSecurityNumber();
+        Patient patientToUpdate = patientDAO.findBySocialSecurityNumber(socialSecurityNumber);
+        if(patientToUpdate == null){
+            throw new PatientNotFoundException(String.format("patient %s not found", socialSecurityNumber));
         }
-        patient.setName(patientToUpdate.getName());
-        patient.setBirth(patientToUpdate.getBirth());
-        patient.setSurname(patientToUpdate.getSurname());
-        patient.setSocialSecurityNumber(patient.getSocialSecurityNumber());
         return patientDAO.save(patient);
     }
 }
